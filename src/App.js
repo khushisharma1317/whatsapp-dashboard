@@ -4,7 +4,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [sdkReady, setSdkReady] = useState(false);
 
-  // 🔵 Fetch messages from backend
+  // 🔵 Fetch messages
   useEffect(() => {
     fetch("https://whatsapp-webhook-1-8ceb.onrender.com/messages")
       .then(res => res.json())
@@ -33,11 +33,11 @@ function App() {
     }
   }, []);
 
-  // 🟢 Load and init FB SDK
+  // 🟢 Load FB SDK
   useEffect(() => {
     window.fbAsyncInit = function () {
       window.FB.init({
-        appId: "1677000596794817", // ✅ YOUR APP ID
+        appId: "1677000596794817",
         cookie: true,
         xfbml: true,
         version: "v18.0"
@@ -66,10 +66,10 @@ function App() {
         console.log("Signup response:", response);
       },
       {
-        config_id: "943904021645592", // ✅ your config id
+        config_id: "943904021645592",
         response_type: "code",
         override_default_response_type: true,
-        redirect_uri: "https://whatsapp-dashboard-zeta.vercel.app/"
+        redirect_uri: "https://whatsapp-dashboard-f90h.vercel.app/"
       }
     );
   };

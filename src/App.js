@@ -4,14 +4,36 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [sdkReady, setSdkReady] = useState(false);
 
-  // Fetch messages
+  // 🔵 Fetch messages from backend
   useEffect(() => {
     fetch("https://whatsapp-webhook-1-8ceb.onrender.com/messages")
       .then(res => res.json())
-      .then(data => setMessages(data));
+      .then(data => setMessages(data))
+      .catch(err => console.log("Fetch error:", err));
   }, []);
 
-  // Load FB SDK correctly
+  // 🟣 Read CODE from URL after Embedded Signup redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (code) {
+      console.log("CODE FROM URL 🔥:", code);
+
+      fetch("https://whatsapp-webhook-1-8ceb.onrender.com/signup-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code })
+      })
+        .then(res => res.json())
+        .then(data => console.log("Backend response:", data))
+        .catch(err => console.log("Signup API error:", err));
+    }
+  }, []);
+
+  // 🟢 Load FB SDK correctly
   useEffect(() => {
     window.fbAsyncInit = function () {
       window.FB.init({
@@ -32,7 +54,7 @@ function App() {
     document.body.appendChild(script);
   }, []);
 
-  // Launch Embedded Signup
+  // 🔴 Launch Embedded Signup
   const launchSignup = () => {
     if (!sdkReady) {
       alert("SDK not loaded yet 😭");
@@ -41,15 +63,12 @@ function App() {
 
     window.FB.login(
       function (response) {
-        if (response.authResponse) {
-          console.log("Signup success 🔥", response);
-        } else {
-          console.log("User cancelled");
-        }
+        console.log("Signup response:", response);
       },
       {
         config_id: "943904021645592", // 👈 your config id
-        response_type: "code"
+        response_type: "code",
+        override_default_response_type: true
       }
     );
   };
@@ -62,9 +81,16 @@ function App() {
         Connect WhatsApp
       </button>
 
-      <div style={{ border: "1px solid gray", height: "300px", overflow: "auto", marginTop: "20px" }}>
+      <div style={{
+        border: "1px solid gray",
+        height: "300px",
+        overflow: "auto",
+        marginTop: "20px"
+      }}>
         {messages.map((msg, index) => (
-          <div key={index}>{JSON.stringify(msg)}</div>
+          <div key={index}>
+            {JSON.stringify(msg)}
+          </div>
         ))}
       </div>
     </div>
@@ -72,3 +98,4 @@ function App() {
 }
 
 export default App;
+

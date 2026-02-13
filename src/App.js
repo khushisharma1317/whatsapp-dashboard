@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 function App() {
   const [messages, setMessages] = useState([]);
-
   const BACKEND = process.env.REACT_APP_BACKEND_URL;
 
   // 🔵 Fetch messages
@@ -10,9 +9,9 @@ function App() {
     if (!BACKEND) return;
 
     fetch(`${BACKEND}/messages`)
-      .then(res => res.json())
-      .then(data => setMessages(data))
-      .catch(err => console.log("Fetch error:", err));
+      .then((res) => res.json())
+      .then((data) => setMessages(data))
+      .catch((err) => console.log("Fetch error:", err));
   }, [BACKEND]);
 
   // 🟣 Read CODE from URL after redirect
@@ -28,13 +27,13 @@ function App() {
       fetch(`${BACKEND}/signup-data`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ code })
+        body: JSON.stringify({ code }),
       })
-        .then(res => res.json())
-        .then(data => console.log("Backend response:", data))
-        .catch(err => console.log("Signup API error:", err));
+        .then((res) => res.json())
+        .then((data) => console.log("Backend response:", data))
+        .catch((err) => console.log("Signup API error:", err));
     }
   }, [BACKEND]);
 
@@ -45,7 +44,7 @@ function App() {
         appId: "1677000596794817",
         cookie: true,
         xfbml: true,
-        version: "v18.0"
+        version: "v18.0",
       });
 
       console.log("FB SDK READY ✅");
@@ -58,17 +57,36 @@ function App() {
     document.body.appendChild(script);
   }, []);
 
-  // 🔴 Launch Embedded Signup
+  // 🔴 Launch Embedded Signup (WhatsApp specific)
   const launchSignup = () => {
     window.FB.login(
       function (response) {
         console.log("Signup response:", response);
+
+        if (response.authResponse && response.authResponse.code) {
+          const code = response.authResponse.code;
+
+          fetch(`${BACKEND}/signup-data`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ code }),
+          })
+            .then((res) => res.json())
+            .then((data) => console.log("Backend response:", data))
+            .catch((err) => console.log("Signup API error:", err));
+        }
       },
       {
         config_id: "943904021645592",
         response_type: "code",
         override_default_response_type: true,
-        redirect_uri: "https://whatsapp-dashboard-f90h.vercel.app/"
+        extras: {
+          setup: {
+            featureType: "whatsapp_business_messaging",
+          },
+        },
       }
     );
   };
@@ -77,16 +95,14 @@ function App() {
     <div style={{ padding: "20px" }}>
       <h2>WhatsApp Dashboard</h2>
 
-      <button onClick={launchSignup}>
-        Connect WhatsApp
-      </button>
+      <button onClick={launchSignup}>Connect WhatsApp</button>
 
       <div
         style={{
           border: "1px solid gray",
           height: "300px",
           overflow: "auto",
-          marginTop: "20px"
+          marginTop: "20px",
         }}
       >
         {messages.map((msg, index) => (

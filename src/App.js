@@ -3,56 +3,33 @@ import { useEffect, useState } from "react";
 function App() {
   const [messages, setMessages] = useState([]);
   const [sdkReady, setSdkReady] = useState(false);
+const BACKEND = process.env.REACT_APP_BACKEND_URL;
 
-  // 🔵 Fetch messages
-  useEffect(() => {
-    fetch("https://whatsapp-webhook-1-8ceb.onrender.com/messages")
+useEffect(() => {
+  fetch(`${BACKEND}/messages`)
+    .then(res => res.json())
+    .then(data => setMessages(data))
+    .catch(err => console.log("Fetch error:", err));
+}, []);
+
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+
+  if (code) {
+    fetch(`${BACKEND}/signup-data`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ code })
+    })
       .then(res => res.json())
-      .then(data => setMessages(data))
-      .catch(err => console.log("Fetch error:", err));
-  }, []);
+      .then(data => console.log("Backend response:", data))
+      .catch(err => console.log("Signup API error:", err));
+  }
+}, []);
 
-  // 🟣 Read CODE from URL after redirect
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-
-    if (code) {
-      console.log("CODE FROM URL 🔥:", code);
-
-      fetch("https://whatsapp-webhook-1-8ceb.onrender.com/signup-data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ code })
-      })
-        .then(res => res.json())
-        .then(data => console.log("Backend response:", data))
-        .catch(err => console.log("Signup API error:", err));
-    }
-  }, []);
-
-  // 🟢 Load FB SDK
-  useEffect(() => {
-    window.fbAsyncInit = function () {
-      window.FB.init({
-        appId: "1677000596794817",
-        cookie: true,
-        xfbml: true,
-        version: "v18.0"
-      });
-
-      setSdkReady(true);
-      console.log("FB SDK READY ✅");
-    };
-
-    const script = document.createElement("script");
-    script.src = "https://connect.facebook.net/en_US/sdk.js";
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-  }, []);
 
   // 🔴 Launch Embedded Signup
   const launchSignup = () => {

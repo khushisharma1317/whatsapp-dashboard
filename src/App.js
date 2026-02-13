@@ -35,17 +35,18 @@ function App() {
 
   // 🟢 Load FB SDK correctly
   useEffect(() => {
-    window.fbAsyncInit = function () {
-      window.FB.init({
-        appId: "1677000596794817", // 👈 YOUR APP ID
-        cookie: true,
-        xfbml: true,
-        version: "v18.0"
-      });
+window.FB.login(
+  function (response) {
+    console.log("Signup response:", response);
+  },
+  {
+    config_id: "943904021645592",
+    response_type: "code",
+    override_default_response_type: true,
+    redirect_uri: "https://whatsapp-dashboard-zeta.vercel.app/"
+  }
+);
 
-      setSdkReady(true);
-      console.log("FB SDK READY ✅");
-    };
 
     const script = document.createElement("script");
     script.src = "https://connect.facebook.net/en_US/sdk.js";

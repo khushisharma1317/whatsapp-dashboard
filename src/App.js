@@ -12,7 +12,7 @@ function App() {
       .catch(err => console.log("Fetch error:", err));
   }, []);
 
-  // 🟣 Read CODE from URL after Embedded Signup redirect
+  // 🟣 Read CODE from URL after redirect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
@@ -33,20 +33,19 @@ function App() {
     }
   }, []);
 
-  // 🟢 Load FB SDK correctly
+  // 🟢 Load and init FB SDK
   useEffect(() => {
-window.FB.login(
-  function (response) {
-    console.log("Signup response:", response);
-  },
-  {
-    config_id: "943904021645592",
-    response_type: "code",
-    override_default_response_type: true,
-    redirect_uri: "https://whatsapp-dashboard-zeta.vercel.app/"
-  }
-);
+    window.fbAsyncInit = function () {
+      window.FB.init({
+        appId: "1677000596794817", // ✅ YOUR APP ID
+        cookie: true,
+        xfbml: true,
+        version: "v18.0"
+      });
 
+      setSdkReady(true);
+      console.log("FB SDK READY ✅");
+    };
 
     const script = document.createElement("script");
     script.src = "https://connect.facebook.net/en_US/sdk.js";
@@ -67,9 +66,10 @@ window.FB.login(
         console.log("Signup response:", response);
       },
       {
-        config_id: "943904021645592", // 👈 your config id
+        config_id: "943904021645592", // ✅ your config id
         response_type: "code",
-        override_default_response_type: true
+        override_default_response_type: true,
+        redirect_uri: "https://whatsapp-dashboard-zeta.vercel.app/"
       }
     );
   };
@@ -82,16 +82,16 @@ window.FB.login(
         Connect WhatsApp
       </button>
 
-      <div style={{
-        border: "1px solid gray",
-        height: "300px",
-        overflow: "auto",
-        marginTop: "20px"
-      }}>
+      <div
+        style={{
+          border: "1px solid gray",
+          height: "300px",
+          overflow: "auto",
+          marginTop: "20px"
+        }}
+      >
         {messages.map((msg, index) => (
-          <div key={index}>
-            {JSON.stringify(msg)}
-          </div>
+          <div key={index}>{JSON.stringify(msg)}</div>
         ))}
       </div>
     </div>
@@ -99,4 +99,3 @@ window.FB.login(
 }
 
 export default App;
-
